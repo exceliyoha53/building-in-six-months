@@ -16,16 +16,13 @@ __pycache__/
 *.tmp
 *.bak
 
-# Secrets (e.g., API keys we'll add later)
+# Secrets
 .env
 secrets/
 
-# Large data/ML files (we'll add datasets later)
+# Large data/ML files 
 *.csv
 *.h5
 models/
 data/
 
-# OS junk
-.DS_Store  # Mac if you switch
-Thumbs.db  # Windows
