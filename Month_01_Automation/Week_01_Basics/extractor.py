@@ -1,4 +1,6 @@
 import csv
+import schedule
+import time
 import requests
 from bs4 import BeautifulSoup
 
@@ -54,9 +56,23 @@ class LeadExtractor:
         print("Save Complete!!!")
 
 
-if __name__ == "__main__":
+def run_automation():
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{current_time}] Firing the extraction engine...")
+
     target_site = "https://news.ycombinator.com/"
     my_scraper = LeadExtractor(target_site)
 
     scraped_data = my_scraper.extract_data()
     my_scraper.save_to_csv(scraped_data, "hacker_news_leads.csv")
+    print("Waiting for the next schedule to run...")
+
+
+if __name__ == "__main__":
+    schedule.every(1).minutes.do(run_automation)
+    print("Automation engine started. Press Ctrl+C in the terminal to stop it.\n")
+    run_automation()
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
