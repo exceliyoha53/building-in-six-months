@@ -34,7 +34,7 @@ class LeadExtractor:
     def fetch_page(self):
         print(f"\nFetching: {self.base_url}")
         try:
-            response = self.session.get(self.base_url, headers=self.headers, timeout=10)
+            response = self.session.get(self.base_url, headers=self.headers, timeout=15)
             response.raise_for_status()  # 404:page not found|403:forbidden|500: server error
             return response.text
         except requests.exceptions.RequestException as e:
