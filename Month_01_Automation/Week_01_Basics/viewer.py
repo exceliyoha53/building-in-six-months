@@ -3,7 +3,7 @@ import sqlite3
 
 def view_leads():
     db_name = "leads.db"
-    print("Unlocking the Vault...\n")
+    print("\nUnlocking the Vault...\n")
 
     try:
         conn = sqlite3.connect(db_name)
