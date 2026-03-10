@@ -22,6 +22,7 @@ secrets/
 
 # Large data/ML files 
 *.csv
+*.db
 *.h5
 models/
 data/

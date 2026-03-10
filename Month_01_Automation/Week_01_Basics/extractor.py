@@ -1,4 +1,4 @@
-import csv
+import sqlite3
 import schedule
 import time
 import requests
@@ -12,6 +12,24 @@ class LeadExtractor:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
         self.session = requests.Session()  # A session keeps our connection alive and holds cookies
+        self.db_name = "leads.db"
+        self.setup_database()
+
+    def setup_database(self):
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+
+        # SQL to create a table:
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS articles(
+                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       title TEXT NOT NULL,
+                       link TEXT UNIQUE NOT NULL
+                )
+        """)
+        conn.commit()
+        conn.close()
+        print("Database setup complete. Fortress secured.")
 
     def fetch_page(self):
         print(f"\nFetching: {self.base_url}")
@@ -43,17 +61,30 @@ class LeadExtractor:
             extracted_leads.append(lead_data)
         return extracted_leads
 
-    def save_to_csv(self, data, filename="leads.csv"):
+    def save_to_db(self, data):
         if not data:
-            print("No data to save!")
             return
-        print(f"Saving {len(data)} leads to {filename}...")
-        column_headers = ["Title", "Link"]
-        with open(filename, mode="w", newline="", encoding="utf-8") as file:
-            writer = csv.DictWriter(file, fieldnames=column_headers)
-            writer.writeheader()
-            writer.writerows(data)
-        print("Save Complete!!!")
+        print(f"Attempting to save {len(data)} leads to database...")
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        new_inserts = 0
+        for item in data:
+            try:
+                cursor.execute(
+                    """
+                    INSERT OR IGNORE INTO articles (title, link)
+                    VALUES(?, ?)
+                """,
+                    (item["Title"], item["Link"]),
+                )
+                if cursor.rowcount == 1:  # if row was added(1) or not(0)
+                    new_inserts += 1
+            except sqlite3.Error as e:
+                print(f"Database error: {e}")
+
+        conn.commit()
+        conn.close()
+        print(f"Save complete! {new_inserts} new unique leads added to the fortress. \n")
 
 
 def run_automation():
@@ -64,7 +95,7 @@ def run_automation():
     my_scraper = LeadExtractor(target_site)
 
     scraped_data = my_scraper.extract_data()
-    my_scraper.save_to_csv(scraped_data, "hacker_news_leads.csv")
+    my_scraper.save_to_db(scraped_data)
     print("Waiting for the next schedule to run...")
 
 
