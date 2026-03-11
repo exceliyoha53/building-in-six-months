@@ -26,4 +26,5 @@ secrets/
 *.h5
 models/
 data/
-
+auth.json
+*.json
