@@ -17,8 +17,8 @@ def scrape_while_logged_in():
         try:
             page.wait_for_selector("a[href='/logout']", timeout=5000)
             print("✅ Success! The server recognized our VIP wristband. No password needed.")
-        except:
-            print("❌ Intruder alert! The server bounced us.")
+        except Exception as e:
+            print(f"❌ Intruder alert! The server bounced us. Reason: {e}")
 
         page.wait_for_timeout(3000)
         print("Shutting down connection.")
