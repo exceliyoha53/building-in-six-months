@@ -64,7 +64,6 @@ def save_to_vault(jobs_data):
                 (title, company, location),
             )
 
-            # Count how many new rows were actually added (ignores duplicates)
             if cursor.rowcount > 0:
                 new_records += 1
 
