@@ -47,7 +47,7 @@ def scrape_booksite():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         print("Navigating to target...\n")
-        page.goto("https://books.toscrape.com/", timeout=100000, wait_until="domcontentloaded")
+        page.goto("https://books.toscrape.com/", timeout=60000, wait_until="domcontentloaded")
 
         while True:
             print(f"--- Scraping Page {page_number} ---")
