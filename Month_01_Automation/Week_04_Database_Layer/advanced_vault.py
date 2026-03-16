@@ -35,13 +35,12 @@ def upsert_product_data(product_name, price):
             INSERT INTO product_prices (product_name, current_price, last_updated)
             VALUES (?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(product_name) 
-            DO UPDATE SET 
+            DO UPDATE SET
                 current_price = excluded.current_price,
                 last_updated = CURRENT_TIMESTAMP
         """,
             (product_name, price),
         )
-
         conn.commit()
         logger.info(f"UPSERT successful for: {product_name} -> {price}")
 

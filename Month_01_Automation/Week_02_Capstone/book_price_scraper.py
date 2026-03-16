@@ -13,7 +13,8 @@ def init_db():
             title TEXT,
             price TEXT,
             availability TEXT,
-            link TEXT UNIQUE
+            link TEXT UNIQUE,
+            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
     conn.commit()
@@ -32,19 +33,24 @@ def save_books_to_vault(books_data):
         try:
             cursor.execute(
                 """
-                INSERT INTO books (title, price, availability, link)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO books (title, price, availability, link, last_updated)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(link) 
+                DO UPDATE SET 
+                    price = excluded.price,
+                    availability = excluded.availability,
+                    last_updated = CURRENT_TIMESTAMP
             """,
-                (book["title"], book["price"], book["availability"], book["link"]),
+                (book["title"], book["price"], book["availability"], book["full_link"]),
             )
             if cursor.rowcount > 0:
                 new_inserts += 1
         except sqlite3.Error as e:
             logger.error(f"Database Error during insertion: {e}")
 
-        conn.commit()
-        conn.close()
-        logger.info(f"Successfully locked {new_inserts} new books into the vault.")
+    conn.commit()
+    conn.close()
+    logger.info(f"Successfully locked {new_inserts} new books into the vault.")
 
 
 def scrape_and_save_booksite():
@@ -119,4 +125,5 @@ def scrape_and_save_booksite():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     scrape_and_save_booksite()

@@ -16,12 +16,14 @@ def setup_job_vault():
             title TEXT,
             company TEXT,
             location TEXT,
+            last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT DEFAULT 'Active',
             UNIQUE(title, company, location)
         )
     """)
     conn.commit()
     conn.close()
-    logger.info("Database setup complete. Job Vault secured.")
+    logger.info("Advanced Job Vault initialized with live-tracking capabilities.")
 
 
 def hunt_for_jobs():
@@ -62,26 +64,31 @@ def save_to_vault(jobs_data):
         return
     conn = sqlite3.connect("remote_jobs.db")
     cursor = conn.cursor()
-    new_records = 0
+    updated_records = 0
+
     for title, company, location in jobs_data:
         try:
             cursor.execute(
                 """
-                INSERT OR IGNORE INTO jobs (title, company, location)
-                VALUES (?, ?, ?)
+                INSERT INTO jobs (title, company, location, last_seen, status)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, 'Active')
+                ON CONFLICT(title, company, location) 
+                DO UPDATE SET 
+                    last_seen = CURRENT_TIMESTAMP,
+                    status = 'Active'
             """,
                 (title, company, location),
             )
 
             if cursor.rowcount > 0:
-                new_records += 1
+                updated_records += 1
 
         except sqlite3.Error as e:
-            logger.error(f"Database error during insert: {e}")
+            logger.error(f"Database error during UPSERT: {e}", exc_info=True)
 
     conn.commit()
     conn.close()
-    logger.info(f"Mission Complete! Safely locked {new_records} new remote jobs into the vault.")
+    logger.info(f"Vault Sync Complete! {updated_records} jobs inserted or updated.")
 
 
 if __name__ == "__main__":
