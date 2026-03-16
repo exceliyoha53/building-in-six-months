@@ -71,7 +71,7 @@ def main():
     try:
         logger.info("Scheduler active. Entering autonomous mode.")
         logger.info("Waiting for the first trigger (1 minutes)...")
-        logger.info("Waiting for the second trigger (1 minutes)...")
+        logger.info("Waiting for the second trigger (2 minutes)...")
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.info("Admin override detected. Shutting down engine gracefully.")
