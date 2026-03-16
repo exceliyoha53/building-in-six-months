@@ -44,7 +44,7 @@ class LeadExtractor:
     def extract_data(self):
         html_content = self.fetch_page()
         if not html_content:
-            return []  # Return an empty list if t he fetching failed
+            return []
 
         print("Parsing the data...\n")
         soup = BeautifulSoup(html_content, "html.parser")

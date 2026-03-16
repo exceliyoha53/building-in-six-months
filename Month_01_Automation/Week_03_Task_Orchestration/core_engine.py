@@ -4,6 +4,7 @@ from pathlib import Path
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
+from reporter import generate_jobs_report
 
 current_dir = Path(__file__).resolve().parent
 parent_dir = current_dir.parent
@@ -50,6 +51,18 @@ def remote_book_extraction_task():
         logger.error(f"Critical failure Scraping books: {e}", exc_info=True)
 
 
+def daily_reporting_task():
+    """
+    Triggers the generation of the daily CSV reports.
+    """
+    logger.info("== ALARM TRIGGERED: INITIATING END-OF-DAY REPORTING ==")
+    try:
+        generate_jobs_report()
+        logger.info("== REPORTING COMPLETE. STANDING BY FOR NEXT CYCLE. ==")
+    except Exception as e:
+        logger.error(f"Critical failure during reporting sequence: {e}", exc_info=True)
+
+
 def main():
     logger.info("Booting up the Core Automation Engine...")
     scheduler = BlockingScheduler()
@@ -64,14 +77,27 @@ def main():
     scheduler.add_job(
         remote_book_extraction_task,
         trigger=IntervalTrigger(minutes=5),
-        id="book_scraper_02",
+        id="book_scraper_01",
         name="Remote Books Scraper",
         replace_existing=True,
     )
+    scheduler.add_job(
+        daily_reporting_task,
+        trigger=CronTrigger(hour=17, minute=0),
+        id="daily_reporter_01",
+        name="End of Day CSV Generator",
+        replace_existing=True,
+    )
+
     try:
+        active_jobs = len(scheduler.get_jobs())
+
+        logger.info("========================================")
+        logger.info(f"== SYSTEM ONLINE: {active_jobs} MODULES LOADED ==")
+        logger.info("========================================")
         logger.info("Scheduler active. Entering autonomous mode.")
-        logger.info("Waiting for the first trigger (1 minutes)...")
-        logger.info("Waiting for the second trigger (2 minutes)...")
+        logger.info("Awaiting triggers... Press Ctrl+C to safely terminate.")
+
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.info("Admin override detected. Shutting down engine gracefully.")
