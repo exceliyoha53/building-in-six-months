@@ -53,6 +53,6 @@ class B2BLeadExtractor:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-    dummy_target = "https://scrapethissite.com/pages/"
-    lead_engine = B2BLeadExtractor(target_url=dummy_target)
+    test_target = "https://scrapethissite.com/pages/"
+    lead_engine = B2BLeadExtractor(target_url=test_target)
     lead_engine.extract_directory()

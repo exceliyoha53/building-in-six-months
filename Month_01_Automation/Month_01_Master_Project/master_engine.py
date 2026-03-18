@@ -21,8 +21,14 @@ def scraping_sequence():
     """Worker 1: The Extraaction Task"""
     logger.info("== INITIATING TARGETED EXTRACTION SEQUENCE ==")
     try:
-        target = "https://scrapethissite.com/pages/"
-        engine = B2BLeadExtractor(target_url=target)
+        # -------------------------------------------------------------------
+        # TARGET ACQUISITION CONFIGURATION
+        # Note for deployment: Replace the sandbox URL with the client's
+        # actual target directory. Ensure CSS selectors in B2BLeadExtractor
+        # are updated to match the target's DOM structure.
+        # -------------------------------------------------------------------
+        sandbox_target = "https://scrapethissite.com/pages/"
+        engine = B2BLeadExtractor(target_url=sandbox_target)
         engine.extract_directory()
         logger.info("== EXTRACTION SEQUENCE COMPLETE ==")
     except Exception as e:
